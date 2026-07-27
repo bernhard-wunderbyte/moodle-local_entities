@@ -58,6 +58,7 @@ $string['backtolist'] = 'Back to entity manager';
 $string['belongs_to'] = 'Belongs to';
 $string['cachedef_cachedentities'] = 'Cache to store entities';
 $string['cachedef_entitydates'] = 'Cache to store entity dates';
+$string['cachedef_geocode'] = 'Cache to store geocoding results';
 $string['calendar'] = 'Calendar';
 $string['cancelled'] = 'CANCELLED';
 $string['capacitysource'] = 'Capacity counted by';

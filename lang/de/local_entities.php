@@ -58,6 +58,7 @@ $string['backtolist'] = 'Zurück zum Entity-Manager';
 $string['belongs_to'] = 'Gehört zu';
 $string['cachedef_cachedentities'] = 'Cache um Entities zu speichern';
 $string['cachedef_entitydates'] = 'Cache um Entity-Daten zu speichern';
+$string['cachedef_geocode'] = 'Cache um Geocoding-Daten zu speichern';
 $string['calendar'] = 'Kalender';
 $string['cancelled'] = 'ABGESAGT';
 $string['capacitysource'] = 'Belegung gezählt nach';
