@@ -122,4 +122,33 @@ if ($hassiteconfig) {
             0
         )
     );
+
+    // Calendar display (full-size calendar page and detail-page calendar).
+    // Both override FullCalendar's locale defaults, so the calendar looks the same in every language.
+    $settings->add(
+        new admin_setting_configselect(
+            $componentname . '/calendarfirstday',
+            get_string('calendarfirstday', $componentname),
+            get_string('calendarfirstday:description', $componentname),
+            1,
+            [
+                1 => get_string('monday', 'calendar'),
+                0 => get_string('sunday', 'calendar'),
+                6 => get_string('saturday', 'calendar'),
+            ]
+        )
+    );
+
+    $settings->add(
+        new admin_setting_configselect(
+            $componentname . '/calendartimeformat',
+            get_string('calendartimeformat', $componentname),
+            get_string('calendartimeformat:description', $componentname),
+            24,
+            [
+                24 => get_string('calendartimeformat24', $componentname),
+                12 => get_string('calendartimeformat12', $componentname),
+            ]
+        )
+    );
 }

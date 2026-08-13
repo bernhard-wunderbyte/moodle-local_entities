@@ -24,15 +24,24 @@ import Ajax from 'core/ajax';
 
 var initialLocaleCode = "";
 var calendarEl = "";
+var calendarFirstDay = 1;
+var calendarHour12 = false;
 
 /**
  * Init Calendar
  * @param {entityid} entityid
  * @param {string} locale
  * @param {string} jsondata
+ * @param {number|string} firstday first day of the week (0=Sunday, 1=Monday, 6=Saturday)
+ * @param {number|string} timeformat 24 (24-hour) or 12 (am/pm)
  */
-export const init = (entityid, locale, jsondata = null) => {
+export const init = (entityid, locale, jsondata = null, firstday = 1, timeformat = 24) => {
     initialLocaleCode = locale;
+    calendarFirstDay = parseInt(firstday, 10);
+    if (isNaN(calendarFirstDay)) {
+        calendarFirstDay = 1;
+    }
+    calendarHour12 = parseInt(timeformat, 10) === 12;
     calendarEl = document.getElementById('entity-calendar');
     if (!jsondata) {
         jsondata = getEntityCalendardata(entityid);
@@ -42,8 +51,21 @@ export const init = (entityid, locale, jsondata = null) => {
 };
 
 const renderCalendar = (events) => {
+    // Explicit formats so the configured week start and time format win over the locale defaults
+    // (with an empty or English locale FullCalendar would render Sunday-first with am/pm times).
+    // The 12h branch needs an explicit hour12 flag: with a 24-hour locale (e.g. German) Intl
+    // ignores the meridiem request and keeps rendering 24-hour times otherwise.
+    var eventtimeformat = calendarHour12
+        ? {hour: 'numeric', minute: '2-digit', meridiem: 'short', hour12: true}
+        : {hour: '2-digit', minute: '2-digit', hour12: false};
+    var slotlabelformat = calendarHour12
+        ? {hour: 'numeric', meridiem: 'short', hour12: true}
+        : {hour: '2-digit', minute: '2-digit', hour12: false};
     var calendar = new Calendar(calendarEl, {
         timeZone: 'UTC',
+        firstDay: calendarFirstDay,
+        eventTimeFormat: eventtimeformat,
+        slotLabelFormat: slotlabelformat,
         eventStartEditable: false,
         displayEventEnd: true,
         headerToolbar: {

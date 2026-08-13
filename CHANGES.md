@@ -1,3 +1,6 @@
+* Improvement: The entity calendar's week start (Monday/Sunday/Saturday) and time format (24-hour vs. am/pm) are now configurable via plugin settings; defaults: Monday, 24-hour.
+* Bugfix: The calendar on the entity detail page ignored the site language and always rendered with FullCalendar's English defaults (week starting Sunday, am/pm times) because no locale was passed.
+
 ## Version 0.5.3 (2026070902)
 * Bugfix: Fix the equipment toggle never revealing the "Show equipment for the selected location" button on Moodle 5.x — locate the location select and no-submit button by their stable form name instead of hardcoded element ids (which now carry a random uniqueid suffix), and clear d-none on both the button and its .fitem row.
 * Bugfix: Fix loading DB data to the entity settings form.

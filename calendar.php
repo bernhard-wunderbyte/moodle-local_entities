@@ -23,7 +23,7 @@
  * @license         http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  */
 
-use local_entities\local\views\secondary;
+use local_entities\output\entity_view;
 
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 
@@ -51,12 +51,15 @@ echo '<script src=
 
 $entity = \local_entities\settings_manager::get_settings($id);
 
+// The calendar display settings set the first day (e.g. Monday)
+// and timeformat (12 am/pm vs. 24:00h format).
 $templatedata = [
     'id' => $id,
     'locale' => current_language(),
     'name' => $entity->name,
     'shortname' => $entity->shortname,
-];
+] + entity_view::calendar_display_settings();
+
 echo $OUTPUT->render_from_template('local_entities/calendarprintbtn', $templatedata);
 echo $OUTPUT->render_from_template('local_entities/entitiescalendar', $templatedata);
 

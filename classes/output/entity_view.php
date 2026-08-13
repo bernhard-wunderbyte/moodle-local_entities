@@ -180,6 +180,25 @@ class entity_view {
     }
 
     /**
+     * Returns the calendar display settings shared by the full-size calendar page and the
+     * detail-page calendar view: FullCalendar's first day of the week (0=Sunday, 1=Monday,
+     * 6=Saturday) and the time format (24 or 12). Both override FullCalendar's locale defaults.
+     *
+     * @return array ['calendarfirstday' => int, 'calendartimeformat' => int]
+     */
+    public static function calendar_display_settings(): array {
+        $firstday = get_config('local_entities', 'calendarfirstday');
+        // Sunday is stored as '0', so only an unset config may fall back to Monday.
+        if ($firstday === false || $firstday === '') {
+            $firstday = 1;
+        }
+        return [
+            'calendarfirstday' => (int) $firstday,
+            'calendartimeformat' => ((int) get_config('local_entities', 'calendartimeformat') === 12) ? 12 : 24,
+        ];
+    }
+
+    /**
      * Builds the full rendering context (the enriched entity object) for the detail page.
      *
      * This is a faithful extraction of the logic previously inline in view.php, unchanged in
@@ -332,6 +351,12 @@ class entity_view {
         $entity->canedit = has_capability('local/entities:edit', $context);
         $entity->editurl = new moodle_url('/local/entities/edit.php', ['id' => $id]);
         $entity->calendarurl = new moodle_url('/local/entities/calendar.php', ['id' => $id]);
+        // Needed by the calendar view template: without a locale FullCalendar falls back to
+        // its English defaults regardless of the site language.
+        $entity->locale = current_language();
+        foreach (self::calendar_display_settings() as $key => $value) {
+            $entity->{$key} = $value;
+        }
         $entity->delurl = new moodle_url('/local/entities/entities.php', ['del' => $id, 'sesskey' => $USER->sesskey]);
 
         return $entity;

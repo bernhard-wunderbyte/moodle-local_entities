@@ -24,6 +24,8 @@
         "calendarurl": "https://example.com/calendar",
         "id": 1,
         "locale": "en",
+        "calendarfirstday": 1,
+        "calendartimeformat": 24,
         "hasleftsidebar": false,
         "hasrightsidebar": false
     }
@@ -63,7 +65,7 @@
 {{#js}}
     require(['local_entities/config'], function() {
         require(['local_entities/fullcalendardata'], function(calendar) {
-            calendar.init("{{id}}", "{{locale}}");
+            calendar.init("{{id}}", "{{locale}}", null, "{{calendarfirstday}}", "{{calendartimeformat}}");
         });
     });
 {{/js}}
