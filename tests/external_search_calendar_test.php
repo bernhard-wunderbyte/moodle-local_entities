@@ -17,6 +17,7 @@
 namespace local_entities;
 
 use advanced_testcase;
+use local_entities_generator;
 
 /**
  * Tests for the search_entities and get_entity_calendardata external services.
@@ -37,6 +38,7 @@ final class external_search_calendar_test extends advanced_testcase {
      * @return int
      */
     private function make_entity(string $name, string $shortname, string $entitytype = 'location'): int {
+        /** @var local_entities_generator $gen */
         $gen = $this->getDataGenerator()->get_plugin_generator('local_entities');
         return (int)$gen->create_entities([
             'name' => $name,
@@ -83,7 +85,7 @@ final class external_search_calendar_test extends advanced_testcase {
     }
 
     /**
-     * get_entity_calendardata returns valid JSON and an empty error for an entity without dates.
+     * Function get_entity_calendardata returns valid JSON and an empty error for an entity without dates.
      */
     public function test_get_entity_calendardata_returns_valid_json(): void {
         $this->resetAfterTest();
@@ -98,5 +100,55 @@ final class external_search_calendar_test extends advanced_testcase {
         $decoded = json_decode((string)$result['json']);
         $this->assertIsArray($decoded, 'Calendar payload must be a JSON array.');
         $this->assertSame([], $decoded, 'A fresh entity has no calendar entries.');
+    }
+
+    /**
+     * Function get_entity_calendardata must set the page context itself.
+     *
+     * The date providers push booking option customfields through format_text(), and filters such as
+     * filter_emoticon ask $PAGE for the theme. With an unset context that throws a coding exception
+     * inside the webservice (AJAX_SCRIPT + developer debugging), which the calendar JS swallows in its
+     * empty .fail() handler — the calendar then stays blank with nothing in the browser console.
+     *
+     * The assertion has to read moodle_page::$_context by reflection: reading $PAGE->context would
+     * lazily fall back to the system context, and under CLI (which is how PHPUnit runs) that fallback
+     * is silent, so the missing set_context() call would go unnoticed.
+     */
+    public function test_get_entity_calendardata_sets_page_context(): void {
+        global $PAGE;
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $id = $this->make_entity('Context Entity', 'ctxentity', 'location');
+
+        // A pristine page, so the context can only come from the webservice itself.
+        $PAGE = new \moodle_page();
+        $context = new \ReflectionProperty(\moodle_page::class, '_context');
+        $context->setAccessible(true);
+        $this->assertNull($context->getValue($PAGE), 'Precondition: the fresh page has no context.');
+
+        external\get_entity_calendardata::execute($id);
+
+        $this->assertInstanceOf(
+            \context_system::class,
+            $context->getValue($PAGE),
+            'The webservice must set the system context, otherwise format_text() fails in the filter chain.'
+        );
+    }
+
+    /**
+     * get_entity_calendardata is declared with loginrequired = false and the entity detail page is
+     * shown to logged out visitors, so the service must not gate itself behind a login. Guards against
+     * swapping the set_context() call for validate_context(), which calls require_login() internally.
+     */
+    public function test_get_entity_calendardata_works_when_logged_out(): void {
+        $this->resetAfterTest();
+        $this->setUser(0);
+
+        $id = $this->make_entity('Public Entity', 'publicentity', 'location');
+        $result = external\get_entity_calendardata::execute($id);
+
+        $this->assertSame('', (string)$result['error']);
+        $this->assertSame([], json_decode((string)$result['json']));
     }
 }

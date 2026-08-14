@@ -58,11 +58,20 @@ class get_entity_calendardata extends external_api {
      * @return array
      */
     public static function execute(int $id): array {
+        global $PAGE;
+
         $calendardata['error'] = "";
 
         $params = self::validate_parameters(self::execute_parameters(), [
             'id' => $id,
         ]);
+
+        // Needed by the format_text() calls further down: the date providers run booking option
+        // customfields through the filter chain, and filters like filter_emoticon ask $PAGE for the
+        // theme, which throws a coding exception while the context is unset. This webservice is
+        // deliberately public (loginrequired = false), so we set the context instead of validating
+        // it - validate_context() would call require_login() and lock out logged out visitors.
+        $PAGE->set_context(\context_system::instance());
 
         $entity = entity::load($params['id']);
         $openinghours = $entity->__get('openinghours') ?? '[]';
