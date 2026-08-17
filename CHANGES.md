@@ -1,5 +1,7 @@
-* Bugfix: The entity calendar stayed empty on the detail page and the full-size calendar page for entities whose booking options triggered the text filters. The get_entity_calendardata webservice never set a page context, so format_text() on booking option customfields died with "$PAGE->context was not set" inside the filter chain (e.g. filter_emoticon asking for the theme); the JS swallowed the error because it calls .fail() without a handler.
+## Version 0.5.4 (2026081700)
 * Improvement: The entity calendar's week start (Monday/Sunday/Saturday) and time format (24-hour vs. am/pm) are now configurable via plugin settings; defaults: Monday, 24-hour.
+* Improvement: Added support for Moodle 5.2.
+* Bugfix: The entity calendar stayed empty on the detail page and the full-size calendar page for entities whose booking options triggered the text filters. The get_entity_calendardata webservice never set a page context, so format_text() on booking option customfields died with "$PAGE->context was not set" inside the filter chain (e.g. filter_emoticon asking for the theme); the JS swallowed the error because it calls .fail() without a handler.
 * Bugfix: The calendar on the entity detail page ignored the site language and always rendered with FullCalendar's English defaults (week starting Sunday, am/pm times) because no locale was passed.
 
 ## Version 0.5.3 (2026070902)
